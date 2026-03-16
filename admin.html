@@ -1,0 +1,517 @@
+<!doctype html>
+<html lang="ar" dir="rtl">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>لوحة المدير - الحضور والانصراف</title>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <link
+      href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Arabic:wght@300;400;500;600&display=swap"
+      rel="stylesheet"
+    />
+    <style>
+      :root {
+        --bg: #0f0f0f;
+        --surface: #1a1a1a;
+        --surface2: #222;
+        --border: rgba(255, 255, 255, 0.08);
+        --border2: rgba(255, 255, 255, 0.14);
+        --text: #f0ede8;
+        --muted: #888;
+        --green: #4ade80;
+        --green-bg: rgba(74, 222, 128, 0.1);
+        --amber: #fbbf24;
+        --amber-bg: rgba(251, 191, 36, 0.1);
+        --red: #f87171;
+        --red-bg: rgba(248, 113, 113, 0.1);
+        --accent: #a3e635;
+      }
+      * {
+        box-sizing: border-box;
+        margin: 0;
+        padding: 0;
+      }
+      body {
+        font-family: "IBM Plex Sans Arabic", sans-serif;
+        background: var(--bg);
+        color: var(--text);
+        min-height: 100vh;
+        padding: 1.5rem;
+      }
+      .topbar {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        margin-bottom: 1.5rem;
+        max-width: 900px;
+        margin-inline: auto;
+      }
+      .topbar h1 {
+        font-size: 18px;
+        font-weight: 600;
+      }
+      .topbar-right {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+      }
+      .live-dot {
+        width: 8px;
+        height: 8px;
+        border-radius: 50%;
+        background: var(--green);
+        animation: pulse 2s ease-in-out infinite;
+      }
+      @keyframes pulse {
+        0%,
+        100% {
+          opacity: 1;
+        }
+        50% {
+          opacity: 0.4;
+        }
+      }
+      .live-label {
+        font-size: 12px;
+        color: var(--green);
+      }
+
+      .main {
+        max-width: 900px;
+        margin: 0 auto;
+      }
+
+      .stats-row {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 12px;
+        margin-bottom: 1.25rem;
+      }
+      .stat-card {
+        background: var(--surface);
+        border: 0.5px solid var(--border2);
+        border-radius: 14px;
+        padding: 1rem 1.25rem;
+      }
+      .stat-label {
+        font-size: 12px;
+        color: var(--muted);
+        margin-bottom: 6px;
+      }
+      .stat-val {
+        font-size: 28px;
+        font-weight: 300;
+      }
+      .stat-val.g {
+        color: var(--green);
+      }
+      .stat-val.a {
+        color: var(--amber);
+      }
+      .stat-val.r {
+        color: var(--red);
+      }
+
+      .controls {
+        display: flex;
+        gap: 10px;
+        margin-bottom: 1rem;
+        align-items: center;
+        flex-wrap: wrap;
+      }
+      input[type="date"],
+      select {
+        background: var(--surface);
+        border: 0.5px solid var(--border2);
+        border-radius: 10px;
+        padding: 8px 12px;
+        font-size: 13px;
+        color: var(--text);
+        font-family: inherit;
+        outline: none;
+      }
+      input[type="date"]:focus,
+      select:focus {
+        border-color: var(--accent);
+      }
+      .btn-refresh {
+        background: var(--surface);
+        border: 0.5px solid var(--border2);
+        border-radius: 10px;
+        padding: 8px 14px;
+        font-size: 13px;
+        color: var(--text);
+        font-family: inherit;
+        cursor: pointer;
+        transition: border-color 0.2s;
+      }
+      .btn-refresh:hover {
+        border-color: var(--accent);
+        color: var(--accent);
+      }
+      .btn-export {
+        background: var(--accent);
+        border: none;
+        border-radius: 10px;
+        padding: 8px 16px;
+        font-size: 13px;
+        color: #0f0f0f;
+        font-weight: 500;
+        font-family: inherit;
+        cursor: pointer;
+        margin-right: auto;
+      }
+      .btn-export:hover {
+        opacity: 0.9;
+      }
+
+      .table-wrap {
+        background: var(--surface);
+        border: 0.5px solid var(--border2);
+        border-radius: 16px;
+        overflow: hidden;
+      }
+      table {
+        width: 100%;
+        border-collapse: collapse;
+      }
+      thead th {
+        padding: 12px 16px;
+        font-size: 12px;
+        font-weight: 500;
+        color: var(--muted);
+        text-align: right;
+        border-bottom: 0.5px solid var(--border2);
+        white-space: nowrap;
+      }
+      tbody tr {
+        border-bottom: 0.5px solid var(--border);
+        transition: background 0.15s;
+      }
+      tbody tr:last-child {
+        border-bottom: none;
+      }
+      tbody tr:hover {
+        background: var(--surface2);
+      }
+      tbody td {
+        padding: 12px 16px;
+        font-size: 14px;
+        vertical-align: middle;
+      }
+      .badge {
+        display: inline-flex;
+        align-items: center;
+        padding: 3px 10px;
+        border-radius: 20px;
+        font-size: 12px;
+        font-weight: 500;
+      }
+      .badge-g {
+        background: var(--green-bg);
+        color: var(--green);
+      }
+      .badge-a {
+        background: var(--amber-bg);
+        color: var(--amber);
+      }
+      .badge-r {
+        background: var(--red-bg);
+        color: var(--red);
+      }
+      .time-chip {
+        font-size: 12px;
+        color: var(--muted);
+        background: var(--surface2);
+        padding: 2px 8px;
+        border-radius: 6px;
+        font-variant-numeric: tabular-nums;
+      }
+      .note-text {
+        font-size: 12px;
+        color: var(--muted);
+        margin-top: 2px;
+      }
+      .avatar {
+        width: 34px;
+        height: 34px;
+        border-radius: 50%;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 13px;
+        font-weight: 500;
+        margin-left: 10px;
+        flex-shrink: 0;
+      }
+      .emp-cell {
+        display: flex;
+        align-items: center;
+      }
+      .av0 {
+        background: rgba(74, 222, 128, 0.15);
+        color: var(--green);
+      }
+      .av1 {
+        background: rgba(251, 191, 36, 0.15);
+        color: var(--amber);
+      }
+      .av2 {
+        background: rgba(163, 230, 53, 0.15);
+        color: var(--accent);
+      }
+      .av3 {
+        background: rgba(248, 113, 113, 0.15);
+        color: var(--red);
+      }
+
+      .empty-state {
+        text-align: center;
+        padding: 3rem 1rem;
+        color: var(--muted);
+        font-size: 14px;
+      }
+      .loading-state {
+        text-align: center;
+        padding: 2rem;
+        color: var(--muted);
+        font-size: 14px;
+      }
+
+      .back-link {
+        font-size: 13px;
+        color: var(--muted);
+        text-decoration: none;
+      }
+      .back-link:hover {
+        color: var(--text);
+      }
+
+      @media (max-width: 600px) {
+        .stats-row {
+          grid-template-columns: 1fr 1fr;
+        }
+        .stats-row .stat-card:last-child {
+          grid-column: span 2;
+        }
+        table {
+          font-size: 13px;
+        }
+        thead th:nth-child(4),
+        tbody td:nth-child(4) {
+          display: none;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="topbar">
+      <div style="display: flex; align-items: center; gap: 12px">
+        <a href="index.html" class="back-link">← رجوع</a>
+        <h1>لوحة المدير</h1>
+      </div>
+      <div class="topbar-right">
+        <div class="live-dot"></div>
+        <span class="live-label">Live</span>
+      </div>
+    </div>
+
+    <div class="main">
+      <div class="stats-row">
+        <div class="stat-card">
+          <div class="stat-label">حضور اليوم</div>
+          <div class="stat-val g" id="s-present">—</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-label">انصراف</div>
+          <div class="stat-val a" id="s-checkout">—</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-label">غياب</div>
+          <div class="stat-val r" id="s-absent">—</div>
+        </div>
+      </div>
+
+      <div class="controls">
+        <input type="date" id="filter-date" />
+        <select id="filter-action">
+          <option value="">كل الحركات</option>
+          <option value="حضور">حضور فقط</option>
+          <option value="انصراف">انصراف فقط</option>
+          <option value="غياب">غياب فقط</option>
+        </select>
+        <button class="btn-refresh" onclick="loadData()">↻ تحديث</button>
+        <button class="btn-export" onclick="exportCSV()">تصدير CSV</button>
+      </div>
+
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>الموظف</th>
+              <th>الحالة</th>
+              <th>الوقت</th>
+              <th>التاريخ</th>
+              <th>ملاحظة</th>
+            </tr>
+          </thead>
+          <tbody id="table-body">
+            <tr>
+              <td colspan="5" class="loading-state">جاري التحميل...</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <script>
+      // =============================================
+      // ⚙️ ضع بيانات Supabase هنا (نفس الـ index.html)
+      // =============================================
+      const SUPABASE_URL = "https://moeolrwkmvicpxjhuqmc.supabase.co";
+      const SUPABASE_ANON_KEY =
+        "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im1vZW9scndrbXZpY3B4amh1cW1jIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzM2NjI0NDIsImV4cCI6MjA4OTIzODQ0Mn0.BmkrnrqxdpsIWvYZMxPVC_SH8rFVZgVCcegOf2c0Uzw";
+      // =============================================
+
+      const { createClient } = supabase;
+      const db = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+      const avClasses = ["av0", "av1", "av2", "av3"];
+      let allRecords = [];
+      let avMap = {};
+      let avCounter = 0;
+
+      function getAv(name) {
+        if (!avMap[name]) {
+          avMap[name] = avClasses[avCounter++ % 4];
+        }
+        return avMap[name];
+      }
+      function initials(name) {
+        return name
+          .trim()
+          .split(/\s+/)
+          .slice(0, 2)
+          .map((w) => w[0])
+          .join("");
+      }
+
+      // Set default date to today
+      const todayISO = new Date().toISOString().split("T")[0];
+      document.getElementById("filter-date").value = todayISO;
+
+      async function loadData() {
+        const dateVal =
+          document.getElementById("filter-date").value || todayISO;
+        const actionVal = document.getElementById("filter-action").value;
+
+        document.getElementById("table-body").innerHTML =
+          '<tr><td colspan="5" class="loading-state">جاري التحميل...</td></tr>';
+
+        let query = db
+          .from("attendance")
+          .select("*")
+          .eq("date", dateVal)
+          .order("recorded_at", { ascending: false });
+        if (actionVal) query = query.eq("action", actionVal);
+
+        const { data, error } = await query;
+
+        if (error) {
+          console.error(error);
+          return;
+        }
+        allRecords = data || [];
+        renderTable(allRecords);
+        updateStats(allRecords);
+      }
+
+      function updateStats(records) {
+        document.getElementById("s-present").textContent = records.filter(
+          (r) => r.action === "حضور",
+        ).length;
+        document.getElementById("s-checkout").textContent = records.filter(
+          (r) => r.action === "انصراف",
+        ).length;
+        document.getElementById("s-absent").textContent = records.filter(
+          (r) => r.action === "غياب",
+        ).length;
+      }
+
+      function renderTable(records) {
+        if (!records.length) {
+          document.getElementById("table-body").innerHTML =
+            '<tr><td colspan="5" class="empty-state">لا يوجد سجلات لهذا اليوم</td></tr>';
+          return;
+        }
+        document.getElementById("table-body").innerHTML = records
+          .map((r) => {
+            const bc =
+              r.action === "حضور"
+                ? "badge-g"
+                : r.action === "انصراف"
+                  ? "badge-a"
+                  : "badge-r";
+            const t = new Date(r.recorded_at).toLocaleTimeString("ar-EG", {
+              hour: "2-digit",
+              minute: "2-digit",
+            });
+            const d = new Date(r.recorded_at).toLocaleDateString("ar-EG");
+            const av = getAv(r.employee_name);
+            return `<tr>
+      <td>
+        <div class="emp-cell">
+          <div class="avatar ${av}">${initials(r.employee_name)}</div>
+          <span>${r.employee_name}</span>
+        </div>
+      </td>
+      <td><span class="badge ${bc}">${r.action}</span></td>
+      <td><span class="time-chip">${t}</span></td>
+      <td style="font-size:13px;color:var(--muted)">${d}</td>
+      <td>${r.note ? `<span class="note-text">${r.note}</span>` : '<span style="color:var(--border2)">—</span>'}</td>
+    </tr>`;
+          })
+          .join("");
+      }
+
+      function exportCSV() {
+        if (!allRecords.length) {
+          alert("لا يوجد بيانات للتصدير");
+          return;
+        }
+        const header = "الاسم,الحالة,الوقت,التاريخ,ملاحظة\n";
+        const rows = allRecords
+          .map((r) => {
+            const t = new Date(r.recorded_at).toLocaleTimeString("ar-EG");
+            return `"${r.employee_name}","${r.action}","${t}","${r.date}","${r.note || ""}"`;
+          })
+          .join("\n");
+        const blob = new Blob(["\uFEFF" + header + rows], {
+          type: "text/csv;charset=utf-8",
+        });
+        const a = document.createElement("a");
+        a.href = URL.createObjectURL(blob);
+        a.download = `attendance_${document.getElementById("filter-date").value}.csv`;
+        a.click();
+      }
+
+      // Real-time updates
+      db.channel("attendance-changes")
+        .on(
+          "postgres_changes",
+          { event: "INSERT", schema: "public", table: "attendance" },
+          () => loadData(),
+        )
+        .subscribe();
+
+      document
+        .getElementById("filter-date")
+        .addEventListener("change", loadData);
+      document
+        .getElementById("filter-action")
+        .addEventListener("change", loadData);
+
+      loadData();
+    </script>
+  </body>
+</html>
