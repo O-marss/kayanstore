@@ -1,447 +1,309 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="ar" dir="rtl">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>تسجيل الحضور</title>
-    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-    <link
-      href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Arabic:wght@300;400;500;600&display=swap"
-      rel="stylesheet"
-    />
-    <style>
-      :root {
-        --bg: #0f0f0f;
-        --surface: #1a1a1a;
-        --surface2: #222;
-        --border: rgba(255, 255, 255, 0.08);
-        --border2: rgba(255, 255, 255, 0.14);
-        --text: #f0ede8;
-        --muted: #888;
-        --green: #4ade80;
-        --green-bg: rgba(74, 222, 128, 0.1);
-        --amber: #fbbf24;
-        --amber-bg: rgba(251, 191, 36, 0.1);
-        --red: #f87171;
-        --red-bg: rgba(248, 113, 113, 0.1);
-        --accent: #a3e635;
-      }
-      * {
-        box-sizing: border-box;
-        margin: 0;
-        padding: 0;
-      }
-      body {
-        font-family: "IBM Plex Sans Arabic", sans-serif;
-        background: var(--bg);
-        color: var(--text);
-        min-height: 100vh;
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-        justify-content: center;
-        padding: 1.5rem;
-      }
-      .container {
-        width: 100%;
-        max-width: 420px;
-      }
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>تسجيل الحضور</title>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Arabic:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #0f0f0f;
+    --surface: #1a1a1a;
+    --surface2: #222;
+    --border: rgba(255,255,255,0.08);
+    --border2: rgba(255,255,255,0.14);
+    --text: #f0ede8;
+    --muted: #888;
+    --green: #4ade80;
+    --green-bg: rgba(74,222,128,0.1);
+    --amber: #fbbf24;
+    --amber-bg: rgba(251,191,36,0.1);
+    --red: #f87171;
+    --red-bg: rgba(248,113,113,0.1);
+    --accent: #a3e635;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: 'IBM Plex Sans Arabic', sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 1.5rem;
+  }
+  .container { width: 100%; max-width: 420px; }
 
-      .logo {
-        text-align: center;
-        margin-bottom: 2rem;
-      }
-      .logo-mark {
-        display: inline-flex;
-        align-items: center;
-        justify-content: center;
-        width: 52px;
-        height: 52px;
-        border-radius: 14px;
-        background: var(--accent);
-        margin-bottom: 10px;
-      }
-      .logo-mark svg {
-        width: 26px;
-        height: 26px;
-      }
-      .logo h1 {
-        font-size: 18px;
-        font-weight: 600;
-        letter-spacing: -0.3px;
-      }
-      .logo p {
-        font-size: 13px;
-        color: var(--muted);
-        margin-top: 3px;
-      }
+  .logo {
+    text-align: center;
+    margin-bottom: 2rem;
+  }
+  .logo-mark {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 52px; height: 52px;
+    border-radius: 14px;
+    background: var(--accent);
+    margin-bottom: 10px;
+  }
+  .logo-mark svg { width: 26px; height: 26px; }
+  .logo h1 { font-size: 18px; font-weight: 600; letter-spacing: -0.3px; }
+  .logo p { font-size: 13px; color: var(--muted); margin-top: 3px; }
 
-      .clock-block {
-        background: var(--surface);
-        border: 0.5px solid var(--border2);
-        border-radius: 16px;
-        padding: 1.25rem 1.5rem;
-        text-align: center;
-        margin-bottom: 1rem;
-      }
-      .clock {
-        font-size: 38px;
-        font-weight: 300;
-        letter-spacing: 2px;
-        font-variant-numeric: tabular-nums;
-      }
-      .date-str {
-        font-size: 13px;
-        color: var(--muted);
-        margin-top: 4px;
-      }
+  .clock-block {
+    background: var(--surface);
+    border: 0.5px solid var(--border2);
+    border-radius: 16px;
+    padding: 1.25rem 1.5rem;
+    text-align: center;
+    margin-bottom: 1rem;
+  }
+  .clock { font-size: 38px; font-weight: 300; letter-spacing: 2px; font-variant-numeric: tabular-nums; }
+  .date-str { font-size: 13px; color: var(--muted); margin-top: 4px; }
 
-      .card {
-        background: var(--surface);
-        border: 0.5px solid var(--border2);
-        border-radius: 16px;
-        padding: 1.5rem;
-        margin-bottom: 1rem;
-      }
+  .card {
+    background: var(--surface);
+    border: 0.5px solid var(--border2);
+    border-radius: 16px;
+    padding: 1.5rem;
+    margin-bottom: 1rem;
+  }
 
-      label {
-        font-size: 13px;
-        color: var(--muted);
-        display: block;
-        margin-bottom: 6px;
-      }
-      input[type="text"],
-      textarea {
-        width: 100%;
-        background: var(--surface2);
-        border: 0.5px solid var(--border2);
-        border-radius: 10px;
-        padding: 11px 14px;
-        font-size: 15px;
-        color: var(--text);
-        font-family: inherit;
-        outline: none;
-        transition: border-color 0.2s;
-        direction: rtl;
-      }
-      input[type="text"]:focus,
-      textarea:focus {
-        border-color: var(--accent);
-      }
-      textarea {
-        resize: vertical;
-        min-height: 70px;
-      }
+  label { font-size: 13px; color: var(--muted); display: block; margin-bottom: 6px; }
+  input[type=text], textarea {
+    width: 100%;
+    background: var(--surface2);
+    border: 0.5px solid var(--border2);
+    border-radius: 10px;
+    padding: 11px 14px;
+    font-size: 15px;
+    color: var(--text);
+    font-family: inherit;
+    outline: none;
+    transition: border-color 0.2s;
+    direction: rtl;
+  }
+  input[type=text]:focus, textarea:focus { border-color: var(--accent); }
+  textarea { resize: vertical; min-height: 70px; }
 
-      .field {
-        margin-bottom: 1rem;
-      }
+  .field { margin-bottom: 1rem; }
 
-      .absence-toggle {
-        display: none;
-        margin-top: 1rem;
-        padding-top: 1rem;
-        border-top: 0.5px solid var(--border);
-      }
-      .absence-toggle.show {
-        display: block;
-      }
+  .absence-toggle {
+    display: none;
+    margin-top: 1rem;
+    padding-top: 1rem;
+    border-top: 0.5px solid var(--border);
+  }
+  .absence-toggle.show { display: block; }
 
-      .btn-grid {
-        display: grid;
-        grid-template-columns: 1fr 1fr;
-        gap: 10px;
-        margin-top: 1.25rem;
-      }
-      .btn {
-        padding: 12px 10px;
-        border-radius: 12px;
-        font-size: 14px;
-        font-weight: 500;
-        font-family: inherit;
-        cursor: pointer;
-        border: 1px solid transparent;
-        transition: all 0.18s;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        gap: 6px;
-      }
-      .btn:active {
-        transform: scale(0.97);
-      }
-      .btn-primary {
-        background: var(--accent);
-        color: #0f0f0f;
-        grid-column: span 2;
-      }
-      .btn-primary:hover {
-        opacity: 0.9;
-      }
-      .btn-secondary {
-        background: var(--surface2);
-        color: var(--text);
-        border-color: var(--border2);
-      }
-      .btn-secondary:hover {
-        border-color: var(--amber);
-        color: var(--amber);
-      }
-      .btn-danger {
-        background: var(--surface2);
-        color: var(--red);
-        border-color: var(--border2);
-      }
-      .btn-danger:hover {
-        border-color: var(--red);
-      }
-      .btn-absence-show {
-        width: 100%;
-        background: transparent;
-        border: 0.5px dashed var(--border2);
-        color: var(--muted);
-        border-radius: 10px;
-        padding: 9px;
-        font-size: 13px;
-        font-family: inherit;
-        cursor: pointer;
-        margin-top: 0.75rem;
-        transition: all 0.18s;
-      }
-      .btn-absence-show:hover {
-        border-color: var(--red);
-        color: var(--red);
-      }
+  .btn-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 1.25rem; }
+  .btn {
+    padding: 12px 10px;
+    border-radius: 12px;
+    font-size: 14px;
+    font-weight: 500;
+    font-family: inherit;
+    cursor: pointer;
+    border: 1px solid transparent;
+    transition: all 0.18s;
+    display: flex; align-items: center; justify-content: center; gap: 6px;
+  }
+  .btn:active { transform: scale(0.97); }
+  .btn-primary {
+    background: var(--accent);
+    color: #0f0f0f;
+    grid-column: span 2;
+  }
+  .btn-primary:hover { opacity: 0.9; }
+  .btn-secondary {
+    background: var(--surface2);
+    color: var(--text);
+    border-color: var(--border2);
+  }
+  .btn-secondary:hover { border-color: var(--amber); color: var(--amber); }
+  .btn-danger {
+    background: var(--surface2);
+    color: var(--red);
+    border-color: var(--border2);
+  }
+  .btn-danger:hover { border-color: var(--red); }
+  .btn-absence-show {
+    width: 100%;
+    background: transparent;
+    border: 0.5px dashed var(--border2);
+    color: var(--muted);
+    border-radius: 10px;
+    padding: 9px;
+    font-size: 13px;
+    font-family: inherit;
+    cursor: pointer;
+    margin-top: 0.75rem;
+    transition: all 0.18s;
+  }
+  .btn-absence-show:hover { border-color: var(--red); color: var(--red); }
 
-      .toast {
-        position: fixed;
-        bottom: 1.5rem;
-        left: 50%;
-        transform: translateX(-50%) translateY(20px);
-        background: var(--surface);
-        border: 0.5px solid var(--border2);
-        border-radius: 12px;
-        padding: 12px 20px;
-        font-size: 14px;
-        opacity: 0;
-        transition: all 0.3s;
-        pointer-events: none;
-        white-space: nowrap;
-        z-index: 100;
-      }
-      .toast.show {
-        opacity: 1;
-        transform: translateX(-50%) translateY(0);
-      }
-      .toast.success {
-        border-color: var(--green);
-        color: var(--green);
-      }
-      .toast.error {
-        border-color: var(--red);
-        color: var(--red);
-      }
+  .toast {
+    position: fixed;
+    bottom: 1.5rem;
+    left: 50%;
+    transform: translateX(-50%) translateY(20px);
+    background: var(--surface);
+    border: 0.5px solid var(--border2);
+    border-radius: 12px;
+    padding: 12px 20px;
+    font-size: 14px;
+    opacity: 0;
+    transition: all 0.3s;
+    pointer-events: none;
+    white-space: nowrap;
+    z-index: 100;
+  }
+  .toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+  .toast.success { border-color: var(--green); color: var(--green); }
+  .toast.error { border-color: var(--red); color: var(--red); }
 
-      .admin-link {
-        text-align: center;
-        margin-top: 1.5rem;
-      }
-      .admin-link a {
-        font-size: 13px;
-        color: var(--muted);
-        text-decoration: none;
-        border-bottom: 0.5px solid transparent;
-        transition: all 0.2s;
-      }
-      .admin-link a:hover {
-        color: var(--text);
-        border-color: var(--border2);
-      }
+  .admin-link {
+    text-align: center;
+    margin-top: 1.5rem;
+  }
+  .admin-link a {
+    font-size: 13px;
+    color: var(--muted);
+    text-decoration: none;
+    border-bottom: 0.5px solid transparent;
+    transition: all 0.2s;
+  }
+  .admin-link a:hover { color: var(--text); border-color: var(--border2); }
 
-      .spinner {
-        width: 16px;
-        height: 16px;
-        border: 2px solid rgba(0, 0, 0, 0.3);
-        border-top-color: #0f0f0f;
-        border-radius: 50%;
-        animation: spin 0.6s linear infinite;
-        display: none;
-      }
-      @keyframes spin {
-        to {
-          transform: rotate(360deg);
-        }
-      }
-      .loading .spinner {
-        display: inline-block;
-      }
-      .loading .btn-text {
-        display: none;
-      }
-    </style>
-  </head>
-  <body>
-    <div class="container">
-      <div class="logo">
-        <div class="logo-mark">
-          <svg
-            viewBox="0 0 24 24"
-            fill="none"
-            stroke="#0f0f0f"
-            stroke-width="2.5"
-            stroke-linecap="round"
-          >
-            <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2" />
-            <circle cx="9" cy="7" r="4" />
-            <path d="M23 21v-2a4 4 0 0 0-3-3.87" />
-            <path d="M16 3.13a4 4 0 0 1 0 7.75" />
-          </svg>
-        </div>
-        <h1>نظام الحضور والانصراف</h1>
-        <p>Remote Attendance System</p>
-      </div>
+  .spinner {
+    width: 16px; height: 16px;
+    border: 2px solid rgba(0,0,0,0.3);
+    border-top-color: #0f0f0f;
+    border-radius: 50%;
+    animation: spin 0.6s linear infinite;
+    display: none;
+  }
+  @keyframes spin { to { transform: rotate(360deg); } }
+  .loading .spinner { display: inline-block; }
+  .loading .btn-text { display: none; }
+</style>
+</head>
+<body>
 
-      <div class="clock-block">
-        <div class="clock" id="clock">--:--:--</div>
-        <div class="date-str" id="datestr">جاري التحميل...</div>
-      </div>
+<div class="container">
+  <div class="logo">
+    <div class="logo-mark">
+      <svg viewBox="0 0 24 24" fill="none" stroke="#0f0f0f" stroke-width="2.5" stroke-linecap="round">
+        <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/>
+        <circle cx="9" cy="7" r="4"/>
+        <path d="M23 21v-2a4 4 0 0 0-3-3.87"/>
+        <path d="M16 3.13a4 4 0 0 1 0 7.75"/>
+      </svg>
+    </div>
+    <h1>نظام الحضور والانصراف</h1>
+    <p>Remote Attendance System</p>
+  </div>
 
-      <div class="card">
-        <div class="field">
-          <label>الاسم الكامل</label>
-          <input type="text" id="emp-name" placeholder="اكتب اسمك هنا" />
-        </div>
+  <div class="clock-block">
+    <div class="clock" id="clock">--:--:--</div>
+    <div class="date-str" id="datestr">جاري التحميل...</div>
+  </div>
 
-        <div class="btn-grid">
-          <button class="btn btn-primary" id="btn-in" onclick="record('حضور')">
-            <span class="btn-text">✓ تسجيل حضور</span>
-            <span class="spinner"></span>
-          </button>
-          <button class="btn btn-secondary" onclick="record('انصراف')">
-            انصراف
-          </button>
-          <button class="btn btn-danger" onclick="toggleAbsence()">
-            تسجيل غياب
-          </button>
-        </div>
-
-        <button class="btn-absence-show" id="abs-btn" onclick="toggleAbsence()">
-          + إضافة سبب غياب
-        </button>
-
-        <div class="absence-toggle" id="abs-wrap">
-          <label>سبب الغياب</label>
-          <textarea id="abs-note" placeholder="اكتب السبب هنا..."></textarea>
-          <button
-            class="btn btn-danger"
-            style="width: 100%; margin-top: 10px"
-            onclick="record('غياب')"
-          >
-            تأكيد تسجيل الغياب
-          </button>
-        </div>
-      </div>
-
-      <div class="admin-link">
-        <a href="admin.html">لوحة المدير ←</a>
-      </div>
+  <div class="card">
+    <div class="field">
+      <label>الاسم الكامل</label>
+      <input type="text" id="emp-name" placeholder="اكتب اسمك هنا" />
     </div>
 
-    <div class="toast" id="toast"></div>
+    <div class="btn-grid">
+      <button class="btn btn-primary" id="btn-in" onclick="record('حضور')">
+        <span class="btn-text">✓ تسجيل حضور</span>
+        <span class="spinner"></span>
+      </button>
+      <button class="btn btn-secondary" onclick="record('انصراف')">انصراف</button>
+      <button class="btn btn-danger" onclick="toggleAbsence()">تسجيل غياب</button>
+    </div>
 
-    <script>
-      // =============================================
-      // ⚙️ ضع بيانات Supabase هنا
-      // =============================================
-      const SUPABASE_URL = "https://moeolrwkmvicpxjhuqmc.supabase.co";
-      const SUPABASE_ANON_KEY =
-        "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im1vZW9scndrbXZpY3B4amh1cW1jIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzM2NjI0NDIsImV4cCI6MjA4OTIzODQ0Mn0.BmkrnrqxdpsIWvYZMxPVC_SH8rFVZgVCcegOf2c0Uzw";
-      // =============================================
+    <button class="btn-absence-show" id="abs-btn" onclick="toggleAbsence()">+ إضافة سبب غياب</button>
 
-      const { createClient } = supabase;
-      const db = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+    <div class="absence-toggle" id="abs-wrap">
+      <label>سبب الغياب</label>
+      <textarea id="abs-note" placeholder="اكتب السبب هنا..."></textarea>
+      <button class="btn btn-danger" style="width:100%;margin-top:10px" onclick="record('غياب')">تأكيد تسجيل الغياب</button>
+    </div>
+  </div>
 
-      const days = [
-        "الأحد",
-        "الاثنين",
-        "الثلاثاء",
-        "الأربعاء",
-        "الخميس",
-        "الجمعة",
-        "السبت",
-      ];
-      function pad(n) {
-        return String(n).padStart(2, "0");
-      }
+  <div class="admin-link">
+    <a href="admin.html">لوحة المدير ←</a>
+  </div>
+</div>
 
-      function tick() {
-        const n = new Date();
-        document.getElementById("clock").textContent =
-          pad(n.getHours()) +
-          ":" +
-          pad(n.getMinutes()) +
-          ":" +
-          pad(n.getSeconds());
-        document.getElementById("datestr").textContent =
-          days[n.getDay()] +
-          "، " +
-          n.toLocaleDateString("ar-EG", {
-            year: "numeric",
-            month: "long",
-            day: "numeric",
-          });
-      }
-      setInterval(tick, 1000);
-      tick();
+<div class="toast" id="toast"></div>
 
-      function toggleAbsence() {
-        const w = document.getElementById("abs-wrap");
-        const b = document.getElementById("abs-btn");
-        const showing = w.classList.toggle("show");
-        b.style.display = showing ? "none" : "block";
-      }
+<script>
+// =============================================
+// ⚙️ ضع بيانات Supabase هنا
+// =============================================
+const SUPABASE_URL = 'YOUR_SUPABASE_URL';
+const SUPABASE_ANON_KEY = 'YOUR_SUPABASE_ANON_KEY';
+// =============================================
 
-      function toast(msg, type = "success") {
-        const el = document.getElementById("toast");
-        el.textContent = msg;
-        el.className = "toast show " + type;
-        setTimeout(() => el.classList.remove("show"), 3500);
-      }
+const { createClient } = supabase;
+const db = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
-      async function record(action) {
-        const name = document.getElementById("emp-name").value.trim();
-        if (!name) {
-          toast("من فضلك اكتب اسمك", "error");
-          return;
-        }
-        const note = document.getElementById("abs-note").value.trim();
+const days = ['الأحد','الاثنين','الثلاثاء','الأربعاء','الخميس','الجمعة','السبت'];
+function pad(n){ return String(n).padStart(2,'0'); }
 
-        const btn = document.getElementById("btn-in");
-        btn.classList.add("loading");
+function tick(){
+  const n = new Date();
+  document.getElementById('clock').textContent = pad(n.getHours())+':'+pad(n.getMinutes())+':'+pad(n.getSeconds());
+  document.getElementById('datestr').textContent = days[n.getDay()]+'، '+n.toLocaleDateString('ar-EG',{year:'numeric',month:'long',day:'numeric'});
+}
+setInterval(tick,1000); tick();
 
-        const { error } = await db
-          .from("attendance")
-          .insert({ employee_name: name, action, note: note || null });
+function toggleAbsence(){
+  const w = document.getElementById('abs-wrap');
+  const b = document.getElementById('abs-btn');
+  const showing = w.classList.toggle('show');
+  b.style.display = showing ? 'none' : 'block';
+}
 
-        btn.classList.remove("loading");
+function toast(msg, type='success'){
+  const el = document.getElementById('toast');
+  el.textContent = msg;
+  el.className = 'toast show '+type;
+  setTimeout(()=>el.classList.remove('show'), 3500);
+}
 
-        if (error) {
-          toast("حصل خطأ، حاول تاني", "error");
-          console.error(error);
-          return;
-        }
+async function record(action){
+  const name = document.getElementById('emp-name').value.trim();
+  if(!name){ toast('من فضلك اكتب اسمك', 'error'); return; }
+  const note = document.getElementById('abs-note').value.trim();
 
-        const msgs = {
-          حضور: "تم تسجيل حضورك بنجاح ✓",
-          انصراف: "تم تسجيل انصرافك ✓",
-          غياب: "تم تسجيل غيابك ✓",
-        };
-        toast(msgs[action]);
-        document.getElementById("emp-name").value = "";
-        document.getElementById("abs-note").value = "";
-        document.getElementById("abs-wrap").classList.remove("show");
-        document.getElementById("abs-btn").style.display = "block";
-      }
-    </script>
-  </body>
+  const btn = document.getElementById('btn-in');
+  btn.classList.add('loading');
+
+  const { error } = await db.from('attendance').insert({ employee_name: name, action, note: note||null });
+
+  btn.classList.remove('loading');
+
+  if(error){
+    toast('حصل خطأ، حاول تاني', 'error');
+    console.error(error);
+    return;
+  }
+
+  const msgs = { 'حضور':'تم تسجيل حضورك بنجاح ✓', 'انصراف':'تم تسجيل انصرافك ✓', 'غياب':'تم تسجيل غيابك ✓' };
+  toast(msgs[action]);
+  document.getElementById('emp-name').value='';
+  document.getElementById('abs-note').value='';
+  document.getElementById('abs-wrap').classList.remove('show');
+  document.getElementById('abs-btn').style.display='block';
+}
+</script>
+</body>
 </html>
