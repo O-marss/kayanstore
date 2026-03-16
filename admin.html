@@ -5,7 +5,10 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>لوحة المدير - الحضور والانصراف</title>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Arabic:wght@300;400;500;600&display=swap" rel="stylesheet">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Arabic:wght@300;400;500;600&display=swap" rel="stylesheet" media="print" onload="this.media='all'">
+<noscript><link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Arabic:wght@300;400;500;600&display=swap" rel="stylesheet"></noscript>
 <style>
   :root {
     --bg: #0f0f0f;
@@ -153,6 +156,7 @@
       </div>
       <button class="btn-login" onclick="checkPassword()">دخول</button>
       <div class="login-error" id="login-error">كلمة المرور غلط، حاول تاني</div>
+      <a href="index.html" style="display:block;text-align:center;margin-top:14px;font-size:13px;color:var(--muted);text-decoration:none;">← رجوع لصفحة التسجيل</a>
     </div>
   </div>
 </div>
@@ -161,7 +165,7 @@
 <div id="dashboard">
   <div class="topbar">
     <div style="display:flex;align-items:center;gap:12px">
-      <a href="index.html" class="back-link">← رجوع</a>
+      <button onclick="window.location.href='index.html'" class="btn-logout">← رجوع</button>
       <h1>لوحة المدير</h1>
     </div>
     <div class="topbar-right">
